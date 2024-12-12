@@ -32,7 +32,7 @@ jobs:
       # Step 4: Sync only the OpenAPI spec
       - name: Sync OpenAPI Spec to Parent Repo
         run: |
-          cp -r ./* parent_repo/api-reference/client-test/
+          cp -r client-credentials/* parent_repo/api-reference/client-test/
 
       # Step 5: Commit and push changes to the parent repo
       - name: Commit Changes to Parent Repo
