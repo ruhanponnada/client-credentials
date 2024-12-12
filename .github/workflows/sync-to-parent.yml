@@ -1,0 +1,50 @@
+name: Sync OpenAPI Spec and MDX Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout the child repo
+    - name: Checkout child repo
+      uses: actions/checkout@v3
+    
+    # Find and sync .mdx files
+    - name: Sync .mdx files to parent repo
+      id: sync-mdx
+      run: |
+        mkdir -p parent-repo/api-reference/client-credentials
+        for mdx_file in ./**/*.mdx; do
+          if [ -f "$mdx_file" ]; then
+            dest_dir="parent-repo/api-reference/client-credentials/$(dirname "$mdx_file")"
+            mkdir -p "$dest_dir"
+            cp "$mdx_file" "$dest_dir"
+          fi
+        done
+    
+    # Clone the parent repository
+    - name: Clone parent repository
+      run: |
+        git clone https://x-access-token:${{ secrets.PARENT_REPO_TOKEN }}@github.com/ruhanponnada/hpe.git parent-repo
+        mkdir -p parent-repo/api-reference/client-credentials
+    
+    # Copy OpenAPI spec and MDX files to parent repo
+    - name: Copy files to parent repository
+      run: |
+        cp ./openapi.json parent-repo/api-reference/client-credentials/openapi.json
+        cp -r ./api-reference/client-credentials/* parent-repo/api-reference/client-credentials/
+    
+    # Commit and push changes
+    - name: Commit and push to parent repository
+      run: |
+        cd parent-repo
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+        git add .
+        git commit -m "Sync OpenAPI spec and MDX files with updated mint.json"
+        git push origin main
