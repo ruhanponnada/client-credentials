@@ -1,58 +1,40 @@
-name: Sync OpenAPI Spec and MDX Files
+name: Sync Child Repo to Parent Repo
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on pushes to the main branch
 
 jobs:
-  sync:
+  sync-all-files:
     runs-on: ubuntu-latest
-    
     steps:
-    # Checkout the child repo
-    - name: Checkout child repo
-      uses: actions/checkout@v3
-    
-    # Find and sync .mdx files
-    - name: Sync .mdx files to parent repo
-      id: sync-mdx
-      run: |
-        mkdir -p parent-repo/api-reference/client-credentials
-        for mdx_file in ./**/*.mdx; do
-          if [ -f "$mdx_file" ]; then
-            dest_dir="parent-repo/api-reference/client-credentials/$(dirname "$mdx_file")"
-            mkdir -p "$dest_dir"
-            cp "$mdx_file" "$dest_dir"
-          fi
-        done
-    
-    
-    # Step 2: Clone the parent repo
-    - name: Clone Parent Repo
-      env:
-        REPO_TOKEN: ${{ secrets.PARENT_REPO_TOKEN }}
-      run: |
-        git clone https://x-access-token:${REPO_TOKEN}@github.com/ruhanponnada/hpe.git parent_repo
-        
-    # Step 3: Ensure the `api-reference/backup` folder exists
-    - name: Create Backup Folder if Missing
-      run: |
-        mkdir -p parent_repo/api-reference/client-credentials
-        echo "Ensured that the 'api-reference/client-credentials' folder exists."
-    
-    # Copy OpenAPI spec and MDX files to parent repo
-    - name: Copy files to parent repository
-      run: |
-        cp ./openapi.json parent-repo/api-reference/client-credentials/openapi.json
-        cp -r ./api-reference/client-credentials/* parent-repo/api-reference/client-credentials/
-    
-    # Commit and push changes
-    - name: Commit and push to parent repository
-      run: |
-        cd parent-repo
-        git config user.name "GitHub Action"
-        git config user.email "action@github.com"
-        git add .
-        git commit -m "Sync OpenAPI spec and MDX files with updated mint.json"
-        git push origin main
+      - name: Checkout Child Repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Retrieve all commits for accurate history
+       
+       # Step 2: Clone the parent repo
+      - name: Clone Parent Repo
+        env:
+          REPO_TOKEN: ${{ secrets.PARENT_REPO_TOKEN }}
+        run: |
+          git clone https://x-access-token:${REPO_TOKEN}@github.com/ruhanponnada/hpe.git parent_repo
+
+      - name: Copy Files to Parent Repo
+        run: |
+          # Create the target directory structure in the parent repo
+          mkdir -p parent_repo/api-reference/client
+          # Copy all files and directories recursively, preserving permissions and timestamps
+          rsync -avz --delete ./ .git/.. parent_repo/api-reference/client
+
+      - name: Commit and Push Changes to Parent Repo (optional)
+        # Uncomment if automatic commits are desired
+        # Consider using a protected branch for the parent repo to enforce reviews
+        run: |
+          cd parent_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Sync files from child repo: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push origin
