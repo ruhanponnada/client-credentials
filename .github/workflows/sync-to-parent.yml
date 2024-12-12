@@ -23,16 +23,16 @@ jobs:
         run: |
           git clone https://x-access-token:${REPO_TOKEN}@github.com/ruhanponnada/hpe.git parent_repo
 
-      # Step 3: Ensure the `api-reference/client` folder exists
-      - name: Create client Folder if Missing
+      # Step 3: Ensure the `api-reference/client-credentials` folder exists
+      - name: Create client-credentials Folder if Missing
         run: |
-          mkdir -p parent_repo/api-reference/client
-          echo "Ensured that the 'api-reference/client' folder exists."
+          mkdir -p parent_repo/api-reference/client-credentials
+          echo "Ensured that the 'api-reference/client-credentials' folder exists."
 
       # Step 4: Sync only the OpenAPI spec
       - name: Sync OpenAPI Spec to Parent Repo
         run: |
-          cp ./openapi.json parent_repo/api-reference/client/openapi.json
+          cp ./openapi.json parent_repo/api-reference/client-credentials/openapi.json
 
       # Step 5: Commit and push changes to the parent repo
       - name: Commit Changes to Parent Repo
