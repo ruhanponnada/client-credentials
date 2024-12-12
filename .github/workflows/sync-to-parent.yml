@@ -1,4 +1,4 @@
-name: Sync Child Repo to Parent Repo
+name: Sync OpenAPI Specs to Parent Repo
 
 on:
   push:
@@ -6,38 +6,40 @@ on:
       - main  # Trigger on pushes to the main branch
 
 jobs:
-  sync-all-files:
+  sync-openapi-specs:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the child repo
       - name: Checkout Child Repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Retrieve all commits for accurate history
-       
-       # Step 2: Clone the parent repo
+          fetch-depth: 0
+
+      # Step 2: Clone the parent repo
       - name: Clone Parent Repo
         env:
           REPO_TOKEN: ${{ secrets.PARENT_REPO_TOKEN }}
         run: |
           git clone https://x-access-token:${REPO_TOKEN}@github.com/ruhanponnada/hpe.git parent_repo
 
-      # Step 3: Ensure folder exists
-      - name: Copy Files to Parent Repo
+      # Step 3: Ensure the `api-reference/client` folder exists
+      - name: Create client Folder if Missing
         run: |
-          mkdir -p parent_repo/api-reference/api-client-credentials
-          echo "Ensured that the 'api-reference/api-client-credentials' folder exists."
-      # Step 4: Sync all files
-      - name: Sync all files
-        run: |
-          cp -r ./* parent_repo/api-reference/api-client-credentials
+          mkdir -p parent_repo/api-reference/client
+          echo "Ensured that the 'api-reference/client' folder exists."
 
-      - name: Commit and Push Changes to Parent Repo (optional)
-        # Uncomment if automatic commits are desired
-        # Consider using a protected branch for the parent repo to enforce reviews
+      # Step 4: Sync only the OpenAPI spec
+      - name: Sync OpenAPI Spec to Parent Repo
+        run: |
+          cp ./openapi.json parent_repo/api-reference/client/openapi.json
+
+      # Step 5: Commit and push changes to the parent repo
+      - name: Commit Changes to Parent Repo
         run: |
           cd parent_repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Sync files from child repo: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push origin
+          git commit -m "Sync OpenAPI spec from child repo: $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
