@@ -24,9 +24,9 @@ jobs:
       - name: Copy Files to Parent Repo
         run: |
           # Create the target directory structure in the parent repo
-          mkdir -p parent_repo/api-reference/client
+          mkdir -p parent_repo/api-reference/client-credentials
           # Copy all files and directories recursively, preserving permissions and timestamps
-          rsync -avz --delete -a ./ .git/.. parent_repo/api-reference/client
+          cp -r ./* parent_repo/api-reference/client-credentials
 
       - name: Commit and Push Changes to Parent Repo (optional)
         # Uncomment if automatic commits are desired
