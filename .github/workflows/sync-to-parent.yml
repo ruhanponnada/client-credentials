@@ -21,12 +21,15 @@ jobs:
         run: |
           git clone https://x-access-token:${REPO_TOKEN}@github.com/ruhanponnada/hpe.git parent_repo
 
+      # Step 3: Ensure folder exists
       - name: Copy Files to Parent Repo
         run: |
-          # Create the target directory structure in the parent repo
-          mkdir -p parent_repo/api-reference/client-credentials
-          # Copy all files and directories recursively, preserving permissions and timestamps
-          cp -r ./* parent_repo/api-reference/client-credentials
+          mkdir -p parent_repo/api-reference/api-client-credentials
+          echo "Ensured that the 'api-reference/api-client-credentials' folder exists."
+      # Step 4: Sync all files
+      - name: Sync all files
+        run: |
+          cp -r ./* parent_repo/api-reference/api-client-credentials
 
       - name: Commit and Push Changes to Parent Repo (optional)
         # Uncomment if automatic commits are desired
