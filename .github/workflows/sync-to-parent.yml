@@ -18,10 +18,10 @@ jobs:
     - name: Sync .mdx files to parent repo
       id: sync-mdx
       run: |
-        mkdir -p parent-repo/api-reference/client
+        mkdir -p parent-repo/api-reference/client-credentials
         for mdx_file in ./**/*.mdx; do
           if [ -f "$mdx_file" ]; then
-            dest_dir="parent-repo/api-reference/client/$(dirname "$mdx_file")"
+            dest_dir="parent-repo/api-reference/client-credentials/$(dirname "$mdx_file")"
             mkdir -p "$dest_dir"
             cp "$mdx_file" "$dest_dir"
           fi
@@ -38,14 +38,14 @@ jobs:
     # Step 3: Ensure the `api-reference/backup` folder exists
     - name: Create Backup Folder if Missing
       run: |
-        mkdir -p parent_repo/api-reference/client
-        echo "Ensured that the 'api-reference/client' folder exists."
+        mkdir -p parent_repo/api-reference/client-credentials
+        echo "Ensured that the 'api-reference/client-credentials' folder exists."
     
     # Copy OpenAPI spec and MDX files to parent repo
     - name: Copy files to parent repository
       run: |
-        cp ./openapi.json parent-repo/api-reference/client/openapi.json
-        cp -r ./api-reference/client/* parent-repo/api-reference/client/
+        cp ./openapi.json parent-repo/api-reference/client-credentials/openapi.json
+        cp -r ./api-reference/client-credentials/* parent-repo/api-reference/client-credentials/
     
     # Commit and push changes
     - name: Commit and push to parent repository
