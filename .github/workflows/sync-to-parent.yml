@@ -31,7 +31,10 @@ jobs:
     - name: Clone parent repository
       run: |
         git clone https://x-access-token:${{ secrets.PARENT_REPO_TOKEN }}@github.com/ruhanponnada/hpe.git parent-repo
-        mkdir -p parent-repo/api-reference/client-credentials
+        cd parent-repo
+        mkdir -p api-reference/client-credentials
+        echo "Ensured that the 'api-reference/client-credentials' folder exists."
+        cd ..
     
     # Copy OpenAPI spec and MDX files to parent repo
     - name: Copy files to parent repository
