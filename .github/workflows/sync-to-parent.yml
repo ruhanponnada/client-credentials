@@ -26,13 +26,13 @@ jobs:
       # Step 3: Ensure the `api-reference/client-credentials` folder exists
       - name: Create client-credentials Folder if Missing
         run: |
-          mkdir -p parent_repo/api-reference/client-credentials
-          echo "Ensured that the 'api-reference/client-credentials' folder exists."
+          mkdir -p parent_repo/api-reference/client-test
+          echo "Ensured that the 'api-reference/client-test' folder exists."
 
       # Step 4: Sync only the OpenAPI spec
       - name: Sync OpenAPI Spec to Parent Repo
         run: |
-          cp ./openapi.json parent_repo/api-reference/client-credentials/openapi.json
+          cp ./* parent_repo/api-reference/client-test/
 
       # Step 5: Commit and push changes to the parent repo
       - name: Commit Changes to Parent Repo
